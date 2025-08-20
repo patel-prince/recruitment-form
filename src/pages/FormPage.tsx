@@ -8,6 +8,7 @@ import {
   PortfolioSection,
   ReferencesSection,
   SkillsSection,
+  SummarySection,
   WorkExperienceSection
 } from '../components/form-sections'
 
@@ -25,7 +26,8 @@ const FormPage = () => {
     { title: 'Skills', key: 'skills' },
     { title: 'Interests', key: 'interests' },
     { title: 'Portfolio', key: 'portfolio' },
-    { title: 'References', key: 'references' }
+    { title: 'References', key: 'references' },
+    { title: 'Summary', key: 'summary' }
   ]
 
   const calculateProgress = () => {
@@ -90,7 +92,8 @@ const FormPage = () => {
       skills: ['technicalSkills', 'softSkills'],
       interests: ['interests'],
       portfolio: ['githubProfile', 'portfolioWebsite', 'projects'],
-      references: ['references']
+      references: ['references'],
+      summary: [] // No validation needed for summary
     }
     return fieldMappings[stepKey] || []
   }
@@ -111,6 +114,8 @@ const FormPage = () => {
         return <PortfolioSection />
       case 6:
         return <ReferencesSection />
+      case 7:
+        return <SummarySection key="summary" form={form} />
       default:
         return <PersonalDetailsSection />
     }

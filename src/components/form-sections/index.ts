@@ -1,0 +1,7 @@
+export { default as PersonalDetailsSection } from './PersonalDetailsSection'
+export { default as EducationDetailsSection } from './EducationDetailsSection'
+export { default as WorkExperienceSection } from './WorkExperienceSection'
+export { default as SkillsSection } from './SkillsSection'
+export { default as InterestsSection } from './InterestsSection'
+export { default as PortfolioSection } from './PortfolioSection'
+export { default as ReferencesSection } from './ReferencesSection'

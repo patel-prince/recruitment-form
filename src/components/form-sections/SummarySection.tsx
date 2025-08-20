@@ -16,7 +16,7 @@ const SummarySection = ({ form }: SummarySectionProps) => {
       // Get all form fields
       const allFields = form.getFieldsValue(true) // true to get all fields including nested ones
       console.log('All form fields:', allFields)
-      
+
       // Also try to get specific sections
       const personalFields = form.getFieldsValue([
         'firstName',
@@ -39,12 +39,12 @@ const SummarySection = ({ form }: SummarySectionProps) => {
         'portfolioWebsite',
         'projects'
       ])
-      
+
       console.log('Personal fields:', personalFields)
       console.log('Skills fields:', skillsFields)
       console.log('Interests fields:', interestsFields)
       console.log('Portfolio fields:', portfolioFields)
-      
+
       return allFields
     } catch (error) {
       console.error('Error getting form values:', error)
@@ -95,6 +95,68 @@ const SummarySection = ({ form }: SummarySectionProps) => {
     return 'Invalid date'
   }
 
+  const calculateExperience = (workExperience: any[]) => {
+    let totalYears = 0
+    const gaps: { start: any; end: any; duration: string }[] = []
+
+    if (!workExperience || workExperience.length === 0) {
+      return { totalYears: 0, gaps: [] }
+    }
+
+    // Sort work experience by start date
+    const sortedExperience = [...workExperience].sort((a, b) => {
+      const startDateA = a.startDate ? a.startDate.$d || a.startDate.toDate() : null
+      const startDateB = b.startDate ? b.startDate.$d || b.startDate.toDate() : null
+      if (!startDateA || !startDateB) return 0
+      return startDateA.getTime() - startDateB.getTime()
+    })
+
+    let previousEndDate: Date | null = null
+
+    sortedExperience.forEach((job) => {
+      const startDate = job.startDate ? job.startDate.$d || job.startDate.toDate() : null
+      const endDate = job.currentlyWorking
+        ? new Date()
+        : job.endDate
+          ? job.endDate.$d || job.endDate.toDate()
+          : null
+
+      if (startDate && endDate) {
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        totalYears += diffDays / 365.25 // Account for leap years
+
+        // Calculate gap with previous job
+        if (
+          previousEndDate &&
+          startDate &&
+          startDate.getTime() > previousEndDate.getTime()
+        ) {
+          const gapTime = Math.abs(startDate.getTime() - previousEndDate.getTime())
+          const gapDays = Math.ceil(gapTime / (1000 * 60 * 60 * 24))
+          let duration = ''
+          if (gapDays >= 365) {
+            duration = `${(gapDays / 365.25).toFixed(1)} years`
+          } else if (gapDays >= 30) {
+            duration = `${Math.round(gapDays / 30.44)} months`
+          } else {
+            duration = `${gapDays} days`
+          }
+          gaps.push({
+            start: previousEndDate.toLocaleDateString(),
+            end: startDate.toLocaleDateString(),
+            duration: duration
+          })
+        }
+      }
+      if (endDate) {
+        previousEndDate = endDate
+      }
+    })
+
+    return { totalYears: totalYears.toFixed(1), gaps }
+  }
+
   const formatArrayData = (data: any[], title: string) => {
     if (!data || data.length === 0) return null
 
@@ -138,6 +200,8 @@ const SummarySection = ({ form }: SummarySectionProps) => {
 
   // Debug: Show raw form data
   console.log('Current formData state:', formData)
+
+  const { totalYears, gaps } = calculateExperience(formData.workExperience)
 
   return (
     <div style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '8px' }}>
@@ -226,6 +290,34 @@ const SummarySection = ({ form }: SummarySectionProps) => {
 
       {/* Work Experience */}
       {formatArrayData(formData.workExperience, 'Work Experience')}
+
+      {/* Experience Summary */}
+      <div style={{ marginBottom: '24px' }}>
+        <Title level={4} style={{ marginBottom: '16px', color: '#52c41a' }}>
+          Experience Summary
+        </Title>
+        <Descriptions column={1} bordered size="small">
+          <Descriptions.Item label="Total Years of Experience">
+            {totalYears} years
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
+
+      {/* Experience Gaps */}
+      {gaps.length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <Title level={4} style={{ marginBottom: '16px', color: '#faad14' }}>
+            Experience Gaps Identified
+          </Title>
+          <Descriptions column={1} bordered size="small">
+            {gaps.map((gap, index) => (
+              <Descriptions.Item key={index} label={`Gap ${index + 1}`}>
+                {gap.start} to {gap.end} ({gap.duration})
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        </div>
+      )}
 
       <Divider />
 

@@ -1,10 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom'
 
-import CounterPage from '../pages/CounterPage'
+import FormPage from '../pages/FormPage'
 
 export const routes = createBrowserRouter([
   {
     path: '/',
-    element: <CounterPage />
+    element: <FormPage />
   }
 ])

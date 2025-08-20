@@ -1,14 +1,8 @@
-import { Divider, Form, Input } from 'antd'
+import { Form, Input } from 'antd'
 
 const SkillsSection = () => {
   return (
-    <div style={{ marginBottom: '32px' }}>
-      <Divider
-        orientation="left"
-        style={{ fontSize: '18px', fontWeight: 'bold', color: '#1890ff' }}
-      >
-        Skills
-      </Divider>
+    <>
       <Form.Item label="Technical Skills" name="technicalSkills">
         <Input.TextArea
           rows={3}
@@ -21,7 +15,7 @@ const SkillsSection = () => {
           placeholder="e.g., Leadership, Communication, Problem Solving, etc."
         />
       </Form.Item>
-    </div>
+    </>
   )
 }
 

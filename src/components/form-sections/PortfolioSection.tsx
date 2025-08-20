@@ -1,14 +1,8 @@
-import { Divider, Form, Input } from 'antd'
+import { Form, Input } from 'antd'
 
 const PortfolioSection = () => {
   return (
-    <div style={{ marginBottom: '32px' }}>
-      <Divider
-        orientation="left"
-        style={{ fontSize: '18px', fontWeight: 'bold', color: '#1890ff' }}
-      >
-        Portfolio
-      </Divider>
+    <>
       <Form.Item label="GitHub Profile" name="githubProfile">
         <Input placeholder="https://github.com/yourusername" />
       </Form.Item>
@@ -21,7 +15,7 @@ const PortfolioSection = () => {
           placeholder="Describe your key projects and achievements"
         />
       </Form.Item>
-    </div>
+    </>
   )
 }
 

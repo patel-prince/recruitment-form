@@ -7,10 +7,53 @@ import {
   PersonalDetailsSection,
   PortfolioSection,
   ReferencesSection,
+  ResumeUploadSection,
   SkillsSection,
   SummarySection,
   WorkExperienceSection
 } from '../components/form-sections'
+
+// Type definitions for form data
+interface DateObject {
+  format: (format: string) => string
+}
+
+interface FormValues {
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  gender?: string
+  dateOfBirth?: DateObject
+  city?: string
+  state?: string
+  maritalStatus?: string
+  nationality?: string
+  language?: string
+  linkedInProfile?: string
+  educationDetails?: Array<{
+    school?: string
+    degree?: string
+    course?: string
+    year?: DateObject
+  }>
+  workExperience?: Array<{
+    company?: string
+    position?: string
+    startDate?: DateObject
+    endDate?: DateObject
+    currentlyWorking?: boolean
+    description?: string
+  }>
+  technicalSkills?: string[]
+  softSkills?: string[]
+  interests?: string[]
+  githubProfile?: string
+  portfolioWebsite?: string
+  projects?: string[]
+  references?: string[]
+  resume?: File
+}
 
 const { Step } = Steps
 
@@ -18,6 +61,7 @@ const FormPage = () => {
   const [form] = Form.useForm()
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
+  const [gapExplanation, setGapExplanation] = useState('')
 
   const steps = [
     { title: 'Personal Details', key: 'personal' },
@@ -27,6 +71,7 @@ const FormPage = () => {
     { title: 'Interests', key: 'interests' },
     { title: 'Portfolio', key: 'portfolio' },
     { title: 'References', key: 'references' },
+    { title: 'Resume Upload', key: 'resume' },
     { title: 'Summary', key: 'summary' }
   ]
 
@@ -41,6 +86,30 @@ const FormPage = () => {
       // Validate current step
       const currentStepKey = steps[currentStep].key
       await form.validateFields(getStepFields(currentStepKey))
+
+      // Additional validation for work experience section
+      if (currentStepKey === 'work') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const validateWorkExp = (form as any).validateWorkExperienceSection
+        if (validateWorkExp && !validateWorkExp()) {
+          message.error(
+            'Please fix all validation errors in Work Experience before proceeding.'
+          )
+          return
+        }
+      }
+
+      // Additional validation for education section
+      if (currentStepKey === 'education') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const validateEducation = (form as any).validateEducationSection
+        if (validateEducation && !validateEducation()) {
+          message.error(
+            'Please fix all validation errors in Education before proceeding.'
+          )
+          return
+        }
+      }
 
       // Mark current step as completed
       if (!completedSteps.includes(currentStep)) {
@@ -64,10 +133,7 @@ const FormPage = () => {
   }
 
   const handleStepClick = (step: number) => {
-    // Allow navigation to completed steps or current step
-    if (completedSteps.includes(step) || step === currentStep) {
-      setCurrentStep(step)
-    } else if (step < currentStep) {
+    if (completedSteps.includes(step) || step <= currentStep) {
       setCurrentStep(step)
     }
   }
@@ -93,6 +159,7 @@ const FormPage = () => {
       interests: ['interests'],
       portfolio: ['githubProfile', 'portfolioWebsite', 'projects'],
       references: ['references'],
+      resume: ['resume'],
       summary: [] // No validation needed for summary
     }
     return fieldMappings[stepKey] || []
@@ -103,7 +170,7 @@ const FormPage = () => {
       case 0:
         return <PersonalDetailsSection />
       case 1:
-        return <EducationDetailsSection />
+        return <EducationDetailsSection form={form} />
       case 2:
         return <WorkExperienceSection form={form} />
       case 3:
@@ -115,20 +182,108 @@ const FormPage = () => {
       case 6:
         return <ReferencesSection />
       case 7:
-        return <SummarySection key="summary" form={form} />
+        return <ResumeUploadSection form={form} />
+      case 8:
+        return (
+          <SummarySection
+            key="summary"
+            form={form}
+            gapExplanation={gapExplanation}
+            onGapExplanationChange={setGapExplanation}
+          />
+        )
       default:
         return <PersonalDetailsSection />
     }
   }
 
+  const detectExperienceGaps = (workExperience: FormValues['workExperience']) => {
+    if (!workExperience || workExperience.length === 0) return []
+
+    const gaps: Array<{ start: string; end: string; duration: string }> = []
+    const sortedExperience = [...workExperience].sort((a, b) => {
+      const startDateA = a.startDate ? a.startDate.format('YYYY-MM-DD') : ''
+      const startDateB = b.startDate ? b.startDate.format('YYYY-MM-DD') : ''
+      return startDateA.localeCompare(startDateB)
+    })
+
+    let previousEndDate: string | null = null
+
+    sortedExperience.forEach((job) => {
+      const startDate = job.startDate ? job.startDate.format('YYYY-MM-DD') : ''
+      const endDate = job.currentlyWorking
+        ? new Date().toISOString().split('T')[0]
+        : job.endDate
+          ? job.endDate.format('YYYY-MM-DD')
+          : ''
+
+      if (startDate && endDate && previousEndDate && startDate > previousEndDate) {
+        const gapStart = new Date(previousEndDate)
+        const gapEnd = new Date(startDate)
+        const gapDays = Math.ceil(
+          (gapEnd.getTime() - gapStart.getTime()) / (1000 * 60 * 60 * 24)
+        )
+
+        let duration = ''
+        if (gapDays >= 365) {
+          duration = `${(gapDays / 365.25).toFixed(1)} years`
+        } else if (gapDays >= 30) {
+          duration = `${Math.round(gapDays / 30.44)} months`
+        } else {
+          duration = `${gapDays} days`
+        }
+
+        gaps.push({
+          start: previousEndDate,
+          end: startDate,
+          duration
+        })
+      }
+
+      if (endDate) {
+        previousEndDate = endDate
+      }
+    })
+
+    return gaps
+  }
+
   const handleSubmit = async () => {
     try {
       await form.validateFields()
-      const values = form.getFieldsValue()
-      console.log('Form submitted:', values)
-      message.success('Application submitted successfully!')
-    } catch {
-      message.error('Please complete all required fields.')
+      const values = form.getFieldsValue() as FormValues
+
+      // Check for experience gaps
+      const gaps = detectExperienceGaps(values.workExperience)
+
+      if (gaps.length > 0 && !gapExplanation) {
+        message.warning(
+          'Please provide an explanation for the experience gaps in the Summary section before submitting.'
+        )
+        return
+      }
+
+      // Show loading message
+      const loadingMessage = message.loading('Submitting your application...', 0)
+
+      // Simulate form submission
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Close loading message
+      loadingMessage()
+
+      message.success('Application submitted successfully! Your data has been saved.')
+
+      // Reset form and gap-related state
+      setTimeout(() => {
+        form.resetFields()
+        setCurrentStep(0)
+        setCompletedSteps([])
+        setGapExplanation('')
+      }, 2000)
+    } catch (error) {
+      console.error('Submission error:', error)
+      message.error('Failed to submit application. Please try again.')
     }
   }
 

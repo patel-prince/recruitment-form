@@ -1,13 +1,19 @@
-import { Button, Descriptions, Divider, Typography } from 'antd'
+import { Descriptions, Divider, Input, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 
 const { Title, Text } = Typography
 
 interface SummarySectionProps {
   form: any
+  gapExplanation?: string
+  onGapExplanationChange?: (explanation: string) => void
 }
 
-const SummarySection = ({ form }: SummarySectionProps) => {
+const SummarySection = ({
+  form,
+  gapExplanation = '',
+  onGapExplanationChange
+}: SummarySectionProps) => {
   const [formData, setFormData] = useState<any>({})
 
   // Function to get all form values
@@ -50,12 +56,6 @@ const SummarySection = ({ form }: SummarySectionProps) => {
       console.error('Error getting form values:', error)
       return {}
     }
-  }
-
-  const refreshFormData = () => {
-    const values = getAllFormValues()
-    setFormData(values)
-    console.log('Manual refresh - Form data updated:', values)
   }
 
   useEffect(() => {
@@ -198,9 +198,6 @@ const SummarySection = ({ form }: SummarySectionProps) => {
     )
   }
 
-  // Debug: Show raw form data
-  console.log('Current formData state:', formData)
-
   const { totalYears, gaps } = calculateExperience(formData.workExperience)
 
   return (
@@ -211,27 +208,6 @@ const SummarySection = ({ form }: SummarySectionProps) => {
       >
         Application Summary
       </Title>
-
-      {/* Debug Info and Refresh Button */}
-      <div
-        style={{
-          marginBottom: '16px',
-          padding: '12px',
-          backgroundColor: '#f0f0f0',
-          borderRadius: '4px',
-          fontSize: '12px'
-        }}
-      >
-        <div style={{ marginBottom: '8px' }}>
-          <strong>Debug Info:</strong> Form data keys: {Object.keys(formData).join(', ')}
-        </div>
-        <div style={{ marginBottom: '8px' }}>
-          <strong>Form Instance:</strong> {form ? 'Available' : 'Not Available'}
-        </div>
-        <Button size="small" onClick={refreshFormData} type="primary">
-          Refresh Form Data
-        </Button>
-      </div>
 
       {/* Personal Details */}
       <div style={{ marginBottom: '32px' }}>
@@ -316,6 +292,23 @@ const SummarySection = ({ form }: SummarySectionProps) => {
               </Descriptions.Item>
             ))}
           </Descriptions>
+
+          {/* Gap Explanation Input */}
+          <div style={{ marginTop: '16px' }}>
+            <Title level={5} style={{ marginBottom: '12px', color: '#faad14' }}>
+              Please explain the reason for these gaps:
+            </Title>
+            <Input.TextArea
+              rows={4}
+              value={gapExplanation}
+              onChange={(e) => onGapExplanationChange?.(e.target.value)}
+              placeholder="Please provide a brief explanation for the gaps in your work experience (e.g., personal reasons, career transition, education, etc.)"
+              style={{ marginBottom: '8px' }}
+            />
+            <Text type="secondary" style={{ fontSize: '12px' }}>
+              This information will be included in your application submission.
+            </Text>
+          </div>
         </div>
       )}
 

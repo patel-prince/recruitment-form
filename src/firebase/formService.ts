@@ -48,15 +48,14 @@ export interface FormSubmissionData {
 
 export const submitFormToFirebase = async (formData: FormSubmissionData) => {
   try {
-    // Debug: Log the data being sent to Firebase
-    console.log('Data being sent to Firebase:', JSON.stringify(formData, null, 2))
+
     
     const docRef = await addDoc(collection(db, "recruitment-submissions"), {
       ...formData,
       submittedAt: serverTimestamp(),
     });
     
-    console.log('Document created with ID:', docRef.id)
+
     
     return {
       success: true,

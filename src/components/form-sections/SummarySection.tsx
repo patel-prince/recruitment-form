@@ -21,35 +21,7 @@ const SummarySection = ({
     try {
       // Get all form fields
       const allFields = form.getFieldsValue(true) // true to get all fields including nested ones
-      console.log('All form fields:', allFields)
-
-      // Also try to get specific sections
-      const personalFields = form.getFieldsValue([
-        'firstName',
-        'lastName',
-        'email',
-        'phone',
-        'gender',
-        'dateOfBirth',
-        'city',
-        'state',
-        'maritalStatus',
-        'nationality',
-        'language',
-        'linkedInProfile'
-      ])
-      const skillsFields = form.getFieldsValue(['technicalSkills', 'softSkills'])
-      const interestsFields = form.getFieldsValue(['interests'])
-      const portfolioFields = form.getFieldsValue([
-        'githubProfile',
-        'portfolioWebsite',
-        'projects'
-      ])
-
-      console.log('Personal fields:', personalFields)
-      console.log('Skills fields:', skillsFields)
-      console.log('Interests fields:', interestsFields)
-      console.log('Portfolio fields:', portfolioFields)
+  
 
       return allFields
     } catch (error) {

@@ -254,7 +254,7 @@ const FormPage = () => {
   const getAllFormValues = () => {
     try {
       const allFields = form.getFieldsValue(true)
-      console.log('All fields from getFieldsValue:', allFields)
+
       
       // Get specific field arrays that might not be captured properly
       const educationDetails = form.getFieldValue('educationDetails') || []
@@ -268,12 +268,7 @@ const FormPage = () => {
       const references = form.getFieldValue('references') || allFields.references || []
       
       // Debug: Log individual field values
-      console.log('Individual field values:')
-      console.log('technicalSkills:', technicalSkills)
-      console.log('softSkills:', softSkills)
-      console.log('interests:', interests)
-      console.log('projects:', projects)
-      console.log('references:', references)
+
       
       return {
         ...allFields,
@@ -299,7 +294,7 @@ const FormPage = () => {
       const values = getAllFormValues() as FormValues
       
       // Debug: Log the raw form values
-      console.log('Raw form values:', values)
+
 
       // Check for experience gaps
       const gaps = detectExperienceGaps(values.workExperience)
@@ -377,7 +372,7 @@ const FormPage = () => {
       }
 
       // Debug: Log the processed form data
-      console.log('Processed form data for Firebase:', formData)
+
 
       // Submit to Firebase
       const result = await submitFormToFirebase(formData)

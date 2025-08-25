@@ -32,14 +32,14 @@ export interface FormSubmissionData {
     description: string;
   }>;
   skills: {
-    technicalSkills: string[];
-    softSkills: string[];
+    technicalSkills: string;
+    softSkills: string;
   };
   otherDetails: {
-    interests: string[];
+    interests: string;
     githubProfile: string;
     portfolioWebsite: string;
-    projects: string[];
+    projects: string;
     references: string[];
     resumeFileName: string;
   };

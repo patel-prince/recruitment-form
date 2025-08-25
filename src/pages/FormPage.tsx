@@ -48,12 +48,12 @@ interface FormValues {
     currentlyWorking?: boolean
     description?: string
   }>
-  technicalSkills?: string[]
-  softSkills?: string[]
-  interests?: string[]
+  technicalSkills?: string
+  softSkills?: string
+  interests?: string
   githubProfile?: string
   portfolioWebsite?: string
-  projects?: string[]
+  projects?: string
   references?: string[]
   resume?: File
 }
@@ -258,11 +258,21 @@ const FormPage = () => {
       // Get specific field arrays that might not be captured properly
       const educationDetails = form.getFieldValue('educationDetails') || []
       const workExperience = form.getFieldValue('workExperience') || []
-      const technicalSkills = form.getFieldValue('technicalSkills') || []
-      const softSkills = form.getFieldValue('softSkills') || []
-      const interests = form.getFieldValue('interests') || []
-      const projects = form.getFieldValue('projects') || []
+      
+      // Get string fields that might be undefined
+      const technicalSkills = form.getFieldValue('technicalSkills') || ''
+      const softSkills = form.getFieldValue('softSkills') || ''
+      const interests = form.getFieldValue('interests') || ''
+      const projects = form.getFieldValue('projects') || ''
       const references = form.getFieldValue('references') || []
+      
+      // Debug: Log individual field values
+      console.log('Individual field values:')
+      console.log('technicalSkills:', technicalSkills)
+      console.log('softSkills:', softSkills)
+      console.log('interests:', interests)
+      console.log('projects:', projects)
+      console.log('references:', references)
       
       return {
         ...allFields,
@@ -347,15 +357,16 @@ const FormPage = () => {
           description: work?.description || ''
         })),
         skills: {
-          technicalSkills: Array.isArray(values.technicalSkills) ? values.technicalSkills : [],
-          softSkills: Array.isArray(values.softSkills) ? values.softSkills : []
+          technicalSkills: values.technicalSkills || '',
+          softSkills: values.softSkills || ''
         },
         otherDetails: {
-          interests: Array.isArray(values.interests) ? values.interests : [],
+          interests: values.interests || '',
           githubProfile: values.githubProfile || '',
           portfolioWebsite: values.portfolioWebsite || '',
-          projects: Array.isArray(values.projects) ? values.projects : [],
-          references: Array.isArray(values.references) ? values.references : [],
+          projects: values.projects || '',
+          references: values.references ? 
+            (Array.isArray(values.references) ? values.references : [values.references]) : [],
           resumeFileName: values.resume ? 
             (typeof values.resume === 'object' && values.resume.name ? 
               values.resume.name : 

@@ -251,10 +251,44 @@ const FormPage = () => {
     return gaps
   }
 
+  const getAllFormValues = () => {
+    try {
+      const allFields = form.getFieldsValue(true)
+      
+      // Get specific field arrays that might not be captured properly
+      const educationDetails = form.getFieldValue('educationDetails') || []
+      const workExperience = form.getFieldValue('workExperience') || []
+      const technicalSkills = form.getFieldValue('technicalSkills') || []
+      const softSkills = form.getFieldValue('softSkills') || []
+      const interests = form.getFieldValue('interests') || []
+      const projects = form.getFieldValue('projects') || []
+      const references = form.getFieldValue('references') || []
+      
+      return {
+        ...allFields,
+        educationDetails,
+        workExperience,
+        technicalSkills,
+        softSkills,
+        interests,
+        projects,
+        references
+      }
+    } catch (error) {
+      console.error('Error getting form values:', error)
+      return {}
+    }
+  }
+
   const handleSubmit = async () => {
     try {
       await form.validateFields()
-      const values = form.getFieldsValue() as FormValues
+      
+      // Get all form values with better error handling
+      const values = getAllFormValues() as FormValues
+      
+      // Debug: Log the raw form values
+      console.log('Raw form values:', values)
 
       // Check for experience gaps
       const gaps = detectExperienceGaps(values.workExperience)
@@ -269,7 +303,7 @@ const FormPage = () => {
       // Show loading message
       const loadingMessage = message.loading('Submitting your application...', 0)
 
-      // Prepare data for Firebase
+      // Prepare data for Firebase with better data extraction
       const formData: FormSubmissionData = {
         timestamp: new Date().toISOString(),
         personalDetails: {
@@ -278,7 +312,10 @@ const FormPage = () => {
           email: values.email || '',
           phone: values.phone || '',
           gender: values.gender || '',
-          dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : '',
+          dateOfBirth: values.dateOfBirth ? 
+            (typeof values.dateOfBirth === 'object' && values.dateOfBirth.format ? 
+              values.dateOfBirth.format('YYYY-MM-DD') : 
+              String(values.dateOfBirth)) : '',
           city: values.city || '',
           state: values.state || '',
           maritalStatus: values.maritalStatus || '',
@@ -287,33 +324,48 @@ const FormPage = () => {
           linkedInProfile: values.linkedInProfile || ''
         },
         educationDetails: (values.educationDetails || []).map((edu) => ({
-          school: edu.school || '',
-          degree: edu.degree || '',
-          course: edu.course || '',
-          year: edu.year ? edu.year.format('YYYY') : ''
+          school: edu?.school || '',
+          degree: edu?.degree || '',
+          course: edu?.course || '',
+          year: edu?.year ? 
+            (typeof edu.year === 'object' && edu.year.format ? 
+              edu.year.format('YYYY') : 
+              String(edu.year)) : ''
         })),
         workExperience: (values.workExperience || []).map((work) => ({
-          company: work.company || '',
-          position: work.position || '',
-          startDate: work.startDate ? work.startDate.format('YYYY-MM-DD') : '',
-          endDate: work.endDate ? work.endDate.format('YYYY-MM-DD') : '',
-          currentlyWorking: work.currentlyWorking ? 'Yes' : 'No',
-          description: work.description || ''
+          company: work?.company || '',
+          position: work?.position || '',
+          startDate: work?.startDate ? 
+            (typeof work.startDate === 'object' && work.startDate.format ? 
+              work.startDate.format('YYYY-MM-DD') : 
+              String(work.startDate)) : '',
+          endDate: work?.endDate ? 
+            (typeof work.endDate === 'object' && work.endDate.format ? 
+              work.endDate.format('YYYY-MM-DD') : 
+              String(work.endDate)) : '',
+          currentlyWorking: work?.currentlyWorking ? 'Yes' : 'No',
+          description: work?.description || ''
         })),
         skills: {
-          technicalSkills: values.technicalSkills || [],
-          softSkills: values.softSkills || []
+          technicalSkills: Array.isArray(values.technicalSkills) ? values.technicalSkills : [],
+          softSkills: Array.isArray(values.softSkills) ? values.softSkills : []
         },
         otherDetails: {
-          interests: values.interests || [],
+          interests: Array.isArray(values.interests) ? values.interests : [],
           githubProfile: values.githubProfile || '',
           portfolioWebsite: values.portfolioWebsite || '',
-          projects: values.projects || [],
-          references: values.references || [],
-          resumeFileName: values.resume ? values.resume.name : ''
+          projects: Array.isArray(values.projects) ? values.projects : [],
+          references: Array.isArray(values.references) ? values.references : [],
+          resumeFileName: values.resume ? 
+            (typeof values.resume === 'object' && values.resume.name ? 
+              values.resume.name : 
+              String(values.resume)) : ''
         },
         gapExplanation: gapExplanation || undefined
       }
+
+      // Debug: Log the processed form data
+      console.log('Processed form data for Firebase:', formData)
 
       // Submit to Firebase
       const result = await submitFormToFirebase(formData)

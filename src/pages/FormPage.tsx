@@ -383,19 +383,12 @@ const FormPage = () => {
       // Submit to Firebase
       const result = await submitFormToFirebase(formData)
 
-      // Send email summary
+      // Send email summary to quake.patel@gmail.com
       try {
-        const userEmail = values.email || formData.personalDetails.email
-        if (userEmail) {
-          await sendFormSummaryEmail(formData, userEmail)
-          message.success(
-            `Application submitted successfully! Document ID: ${result.documentId}. Email summary sent to ${userEmail}`
-          )
-        } else {
-          message.success(
-            `Application submitted successfully! Document ID: ${result.documentId}`
-          )
-        }
+        await sendFormSummaryEmail(formData, 'quake.patel@gmail.com')
+        message.success(
+          `Application submitted successfully! Document ID: ${result.documentId}. Email summary sent to quake.patel@gmail.com`
+        )
       } catch (emailError) {
         console.error('Email sending failed:', emailError)
         message.success(

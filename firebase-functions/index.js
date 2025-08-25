@@ -12,15 +12,15 @@ const transporter = nodemailer.createTransporter({
 
 exports.sendFormSummaryEmail = functions.https.onCall(async (data, context) => {
   try {
-    const { formData, recipientEmail } = data;
+    const { formData } = data;
 
     // Format email content
     const emailContent = formatFormDataForEmail(formData);
 
     const mailOptions = {
       from: functions.config().email.user,
-      to: recipientEmail,
-      subject: 'Your Application Summary - Recruitment Form',
+      to: 'quake.patel@gmail.com', // Send to specific email address
+      subject: 'New Recruitment Form Submission - Application Summary',
       text: emailContent,
       html: formatFormDataForHtml(formData)
     };

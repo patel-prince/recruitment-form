@@ -8,7 +8,7 @@ export interface EmailData {
   formData: any
 }
 
-export const sendFormSummaryEmail = async (formData: any, recipientEmail: string) => {
+export const sendFormSummaryEmail = async (formData: any, _recipientEmail: string) => {
   // Format the form data into a readable email
   const emailContent = formatFormDataForEmail(formData)
   
@@ -17,22 +17,22 @@ export const sendFormSummaryEmail = async (formData: any, recipientEmail: string
     const functions = getFunctions(app)
     const sendEmail = httpsCallable(functions, 'sendFormSummaryEmail')
     
-    // Call the Firebase Function
+    // Send to the specified email address (quake.patel@gmail.com)
     const result = await sendEmail({
       formData: formData,
-      recipientEmail: recipientEmail
+      recipientEmail: 'quake.patel@gmail.com'
     })
 
     return {
       success: true,
-      message: 'Email sent successfully!',
+      message: 'Email sent successfully to quake.patel@gmail.com!',
       result: result.data
     }
   } catch (error) {
     console.error('Error sending email:', error)
     // For now, we'll just log the email content and return success
     // This allows the form to work without email setup
-    console.log('Email content that would be sent:', emailContent)
+    console.log('Email content that would be sent to quake.patel@gmail.com:', emailContent)
     return {
       success: true,
       message: 'Email content logged to console (email service not configured)'

@@ -43,7 +43,7 @@ export interface FormSubmissionData {
     references: string[];
     resumeFileName: string;
   };
-  gapExplanation?: string;
+  gapExplanation: string;
 }
 
 export const submitFormToFirebase = async (formData: FormSubmissionData) => {

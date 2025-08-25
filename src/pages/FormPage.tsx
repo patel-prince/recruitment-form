@@ -254,17 +254,18 @@ const FormPage = () => {
   const getAllFormValues = () => {
     try {
       const allFields = form.getFieldsValue(true)
+      console.log('All fields from getFieldsValue:', allFields)
       
       // Get specific field arrays that might not be captured properly
       const educationDetails = form.getFieldValue('educationDetails') || []
       const workExperience = form.getFieldValue('workExperience') || []
       
       // Get string fields that might be undefined
-      const technicalSkills = form.getFieldValue('technicalSkills') || ''
-      const softSkills = form.getFieldValue('softSkills') || ''
-      const interests = form.getFieldValue('interests') || ''
-      const projects = form.getFieldValue('projects') || ''
-      const references = form.getFieldValue('references') || []
+      const technicalSkills = form.getFieldValue('technicalSkills') || allFields.technicalSkills || ''
+      const softSkills = form.getFieldValue('softSkills') || allFields.softSkills || ''
+      const interests = form.getFieldValue('interests') || allFields.interests || ''
+      const projects = form.getFieldValue('projects') || allFields.projects || ''
+      const references = form.getFieldValue('references') || allFields.references || []
       
       // Debug: Log individual field values
       console.log('Individual field values:')
@@ -372,7 +373,7 @@ const FormPage = () => {
               values.resume.name : 
               String(values.resume)) : ''
         },
-        gapExplanation: gapExplanation || undefined
+        gapExplanation: gapExplanation || ''
       }
 
       // Debug: Log the processed form data

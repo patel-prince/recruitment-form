@@ -1,6 +1,9 @@
 import { Button, Form, Layout, Progress, Steps, message } from 'antd'
 import { useState } from 'react'
 
+import { submitFormToFirebase } from '../firebase/formService'
+import type { FormSubmissionData } from '../firebase/formService'
+
 import {
   EducationDetailsSection,
   InterestsSection,
@@ -266,13 +269,61 @@ const FormPage = () => {
       // Show loading message
       const loadingMessage = message.loading('Submitting your application...', 0)
 
-      // Simulate form submission
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Prepare data for Firebase
+      const formData: FormSubmissionData = {
+        timestamp: new Date().toISOString(),
+        personalDetails: {
+          firstName: values.firstName || '',
+          lastName: values.lastName || '',
+          email: values.email || '',
+          phone: values.phone || '',
+          gender: values.gender || '',
+          dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : '',
+          city: values.city || '',
+          state: values.state || '',
+          maritalStatus: values.maritalStatus || '',
+          nationality: values.nationality || '',
+          language: values.language || '',
+          linkedInProfile: values.linkedInProfile || ''
+        },
+        educationDetails: (values.educationDetails || []).map((edu) => ({
+          school: edu.school || '',
+          degree: edu.degree || '',
+          course: edu.course || '',
+          year: edu.year ? edu.year.format('YYYY') : ''
+        })),
+        workExperience: (values.workExperience || []).map((work) => ({
+          company: work.company || '',
+          position: work.position || '',
+          startDate: work.startDate ? work.startDate.format('YYYY-MM-DD') : '',
+          endDate: work.endDate ? work.endDate.format('YYYY-MM-DD') : '',
+          currentlyWorking: work.currentlyWorking ? 'Yes' : 'No',
+          description: work.description || ''
+        })),
+        skills: {
+          technicalSkills: values.technicalSkills || [],
+          softSkills: values.softSkills || []
+        },
+        otherDetails: {
+          interests: values.interests || [],
+          githubProfile: values.githubProfile || '',
+          portfolioWebsite: values.portfolioWebsite || '',
+          projects: values.projects || [],
+          references: values.references || [],
+          resumeFileName: values.resume ? values.resume.name : ''
+        },
+        gapExplanation: gapExplanation || undefined
+      }
+
+      // Submit to Firebase
+      const result = await submitFormToFirebase(formData)
 
       // Close loading message
       loadingMessage()
 
-      message.success('Application submitted successfully! Your data has been saved.')
+      message.success(
+        `Application submitted successfully! Document ID: ${result.documentId}`
+      )
 
       // Reset form and gap-related state
       setTimeout(() => {

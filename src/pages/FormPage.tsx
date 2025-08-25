@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { submitFormToFirebase } from '../firebase/formService'
 import type { FormSubmissionData } from '../firebase/formService'
+import { sendFormSummaryEmail } from '../services/simpleEmailService'
 
 import {
   EducationDetailsSection,
@@ -382,12 +383,28 @@ const FormPage = () => {
       // Submit to Firebase
       const result = await submitFormToFirebase(formData)
 
+      // Send email summary
+      try {
+        const userEmail = values.email || formData.personalDetails.email
+        if (userEmail) {
+          await sendFormSummaryEmail(formData, userEmail)
+          message.success(
+            `Application submitted successfully! Document ID: ${result.documentId}. Email summary sent to ${userEmail}`
+          )
+        } else {
+          message.success(
+            `Application submitted successfully! Document ID: ${result.documentId}`
+          )
+        }
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError)
+        message.success(
+          `Application submitted successfully! Document ID: ${result.documentId} (Email sending failed)`
+        )
+      }
+
       // Close loading message
       loadingMessage()
-
-      message.success(
-        `Application submitted successfully! Document ID: ${result.documentId}`
-      )
 
       // Reset form and gap-related state
       setTimeout(() => {

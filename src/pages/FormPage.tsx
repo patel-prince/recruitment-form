@@ -55,7 +55,8 @@ interface FormValues {
   portfolioWebsite?: string
   projects?: string
   references?: string[]
-  resume?: File
+  resume?: string
+  cloudinaryData?: any
 }
 
 const { Step } = Steps
@@ -65,6 +66,13 @@ const FormPage = () => {
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [gapExplanation, setGapExplanation] = useState('')
+
+  const handleFormReset = () => {
+    form.resetFields()
+    setCurrentStep(0)
+    setCompletedSteps([])
+    setGapExplanation('')
+  }
 
   const steps = [
     { title: 'Personal Details', key: 'personal' },
@@ -363,10 +371,9 @@ const FormPage = () => {
           projects: values.projects || '',
           references: values.references ? 
             (Array.isArray(values.references) ? values.references : [values.references]) : [],
-          resumeFileName: values.resume ? 
-            (typeof values.resume === 'object' && values.resume.name ? 
-              values.resume.name : 
-              String(values.resume)) : ''
+          resumeFileName: values.resume || '',
+          resumeUrl: values.cloudinaryData?.secure_url || '', // Store the Cloudinary secure URL
+          cloudinaryData: values.cloudinaryData || null
         },
         gapExplanation: gapExplanation || ''
       }
@@ -386,10 +393,7 @@ const FormPage = () => {
 
       // Reset form and gap-related state
       setTimeout(() => {
-        form.resetFields()
-        setCurrentStep(0)
-        setCompletedSteps([])
-        setGapExplanation('')
+        handleFormReset()
       }, 2000)
     } catch (error) {
       console.error('Submission error:', error)
@@ -490,7 +494,7 @@ const FormPage = () => {
             <Button
               type="default"
               size="large"
-              onClick={() => form.resetFields()}
+              onClick={handleFormReset}
               style={{ minWidth: '120px' }}
             >
               Reset Form

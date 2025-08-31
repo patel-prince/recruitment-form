@@ -42,6 +42,16 @@ export interface FormSubmissionData {
     projects: string;
     references: string[];
     resumeFileName: string;
+    resumeUrl: string; // Cloudinary secure URL for direct access
+    cloudinaryData: {
+      public_id: string;
+      secure_url: string;
+      url: string;
+      format: string;
+      resource_type: string;
+      created_at: string;
+      bytes: number;
+    } | null;
   };
   gapExplanation: string;
 }

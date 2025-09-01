@@ -1,5 +1,6 @@
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./config";
+import { sendFormSubmissionEmail, EmailData } from "../services/emailService";
 
 export interface FormSubmissionData {
   timestamp: any;
@@ -58,14 +59,20 @@ export interface FormSubmissionData {
 
 export const submitFormToFirebase = async (formData: FormSubmissionData) => {
   try {
-
-    
+    // Submit to Firebase
     const docRef = await addDoc(collection(db, "recruitment-submissions"), {
       ...formData,
       submittedAt: serverTimestamp(),
     });
     
-
+    // Send email notification
+    try {
+      const emailResult = await sendFormSubmissionEmail(formData as EmailData);
+      console.log('Email result:', emailResult);
+    } catch (emailError) {
+      console.error('Email sending failed, but form was saved:', emailError);
+      // Don't throw error here - form submission should succeed even if email fails
+    }
     
     return {
       success: true,

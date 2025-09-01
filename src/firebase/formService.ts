@@ -1,6 +1,6 @@
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./config";
-import { sendFormSubmissionEmail, EmailData } from "../services/emailService";
+import { sendFormSubmissionEmail, type EmailData } from "../services/emailService";
 
 export interface FormSubmissionData {
   timestamp: any;
